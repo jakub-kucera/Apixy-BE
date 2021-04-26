@@ -46,8 +46,11 @@ test_api:
   stage: test
   script:
     - pip install -r requirements.txt -r requirements-test.txt
-    - python -m pytest -v $TEST_DIR/api
-
+    - python -m pytest -v --cov=$PROJECT_SOURCE_DIR/ $TEST_DIR/api
+    - coverage xml
+  artifacts:
+    reports:
+      cobertura: coverage.xml
 sphinx:
   stage: docs
   script:
