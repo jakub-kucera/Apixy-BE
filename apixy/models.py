@@ -13,6 +13,7 @@ from apixy.entities.project import Project as ProjectEntity
 from apixy.entities.project import (
     ProjectWithDataSources as ProjectWithDataSourcesEntity,
 )
+from apixy.entities.user import User as UserEntity
 
 Entity = TypeVar("Entity", bound=BaseModel)
 
@@ -117,7 +118,28 @@ class DataSource(ORMModel[DataSourceEntity], Model):
         self.data.update(entity_dict)
 
 
+class User(ORMModel[UserEntity], Model):
+    id = fields.UUIDField(pk=True, generated=False)
+    oauth_name = fields.CharField(null=False, max_length=255)
+    superuser = fields.BooleanField(
+        default=False, null=False
+    )  # TODO not sure about representation superuser vs user diff
+    password = fields.CharField(max_length=255, null=False)
+
+    token = fields.CharField(null=False, max_length=255)
+    expires_at = fields.IntField(null=True)
+    refresh_token = fields.CharField(null=True, max_length=255)
+
+    def to_pydantic(self) -> UserEntity:
+        return UserEntity.from_orm(self)
+
+    @classmethod
+    def from_pydantic(cls, entity: UserEntity) -> UserModel:
+        return cls(**entity.dict())
+
+
 ProjectModel = Project
 DataSourceModel = DataSource
+UserModel = User
 
-__all__ = ["ProjectModel", "DataSourceModel"]
+__all__ = ["ProjectModel", "DataSourceModel", "UserModel"]
